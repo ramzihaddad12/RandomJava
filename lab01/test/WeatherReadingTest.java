@@ -20,7 +20,7 @@ public class WeatherReadingTest {
   }
 
   /**
-   * A setup method that runs before any test and creates weatherReading object needed for tests.
+   * A setup method that runs before any test and creates a weatherReading object needed for tests.
    */
 
   @Before
