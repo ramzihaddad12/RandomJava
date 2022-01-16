@@ -1,5 +1,7 @@
 package weather;
 
+import java.util.Objects;
+
 /**
  * Stevenson Reading of the weather which relies on the air temperature,
  * dew point, wind speed, and the total rain.
@@ -12,7 +14,7 @@ public final class StevensonReading implements WeatherReading {
   private final double relativeHumidity;
   private final double heatIndex;
   private final double windChill;
-  private final double totalRain;
+  private final int totalRain;
   private final double[][] heatIndexFormula
           = {{-8.78469475556, 0, 0},
               {1.61139411, 1, 0}, {2.33854883889, 0, 1}, {-0.14611605, 1, 1},
@@ -33,7 +35,7 @@ public final class StevensonReading implements WeatherReading {
    */
 
   public StevensonReading(double airTemperature, double dewPoint,
-                          double windSpeed, double totalRain) throws IllegalArgumentException {
+                          double windSpeed, int totalRain) throws IllegalArgumentException {
     if (airTemperature - dewPoint < 0 || airTemperature - dewPoint > 20) {
       throw new IllegalArgumentException(
               "Difference between the air temperature and dew point must be between 0 and 20.");
@@ -47,11 +49,19 @@ public final class StevensonReading implements WeatherReading {
     this.dewPoint = dewPoint;
     this.windSpeed = windSpeed;
     this.totalRain = totalRain;
-    this.relativeHumidity = 100 - 5 * (airTemperature - dewPoint);
+    this.relativeHumidity = calculateRelativeHumidity(airTemperature, dewPoint);
     this.heatIndex = compute(heatIndexFormula, airTemperature, relativeHumidity);
     this.windChill = compute(windChillFormula, celsiusToFahrenheit(airTemperature), windSpeed);
   }
 
+  //calculates the relative humidity from the air temperature and the dew point
+  private double calculateRelativeHumidity(double airTemperature, double dewPoint) {
+    return 100 - 5 * (airTemperature - dewPoint);
+  }
+
+  //computes the result of a formula (2D array where each 1D array represents the coefficient,
+  //the power of the 1st parameter, and the power of the second parameter respectively)
+  //given the 2 parameters.
   private double compute(double[][] formula, double firstParameter, double secondParameter) {
     double result = 0;
     for (int term = 0; term < formula.length; term++) {
@@ -62,18 +72,14 @@ public final class StevensonReading implements WeatherReading {
     return result;
   }
 
+  //Converts a given temperature from Celsius to Fahrenheit
   private double celsiusToFahrenheit(double airTemperature) {
     return 1.8 * airTemperature + 32;
   }
 
   @Override
   public int hashCode() {
-    int result = 17;
-    result = 31 * result + getTemperature();
-    result = 31 * result + getDewPoint();
-    result = 31 * result + getWindSpeed();
-    result = 31 * result + getTotalRain();
-    return result;
+    return Objects.hash(getTemperature(), getDewPoint(), getWindSpeed(), getTotalRain());
   }
 
   @Override
@@ -98,78 +104,35 @@ public final class StevensonReading implements WeatherReading {
             getTemperature(), getDewPoint(), getWindSpeed(), getTotalRain());
   }
 
-  /**
-   * Get the temperature of this reading rounded to the nearest integer.
-   *
-   * @return the temperature
-   */
-
   @Override
   public int getTemperature() {
     return (int) Math.round(airTemperature);
   }
-
-  /**
-   * Get the dew point for this reading rounded to the nearest integer.
-   *
-   * @return the dew point
-   */
 
   @Override
   public int getDewPoint() {
     return (int) Math.round(dewPoint);
   }
 
-  /**
-   * Get the wind speed for this reading rounded to the nearest integer.
-   *
-   * @return the wind speed
-   */
-
   @Override
   public int getWindSpeed() {
     return (int) Math.round(windSpeed);
   }
 
-  /**
-   * Get the total rain of this reading (in mm).
-   *
-   * @return the total rain
-   */
-
   @Override
   public int getTotalRain() {
-    return (int) Math.round(totalRain);
+    return totalRain;
   }
-
-  /**
-   * Get the relative humidity of this weather reading rounded to the nearest
-   * integer.
-   *
-   * @return the relative humidity
-   */
 
   @Override
   public int getRelativeHumidity() {
     return (int) Math.round(relativeHumidity);
   }
 
-  /**
-   * Get the heat index for this weather reading rounded to the nearest integer.
-   *
-   * @return the heat index
-   */
-
   @Override
   public int getHeatIndex() {
     return (int) Math.round(heatIndex);
   }
-
-  /**
-   * Get the wind chill rounded to the nearest integer.
-   *
-   * @return the wind chill
-   */
 
   @Override
   public int getWindChill() {
