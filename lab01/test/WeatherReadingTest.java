@@ -1,6 +1,5 @@
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertNotEquals;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -15,7 +14,7 @@ public class WeatherReadingTest {
   private WeatherReading weatherReading;
 
   protected WeatherReading reading(double airTemperature, double dewPoint,
-                                   double windSpeed, double totalRain) {
+                                   double windSpeed, int totalRain) {
     return new StevensonReading(airTemperature, dewPoint, windSpeed, totalRain);
   }
 
@@ -25,7 +24,7 @@ public class WeatherReadingTest {
 
   @Before
   public void setUp() {
-    weatherReading = reading(37.4, 20.1, 5.7, 41.2);
+    weatherReading = reading(37.4, 20.1, 5.7, 41);
   }
 
   /**
@@ -34,7 +33,7 @@ public class WeatherReadingTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void testIfInvalidDewPoint() {
-    reading(37.4, 38.1, 5.4, 41.2);
+    reading(37.4, 38.1, 5.4, 41);
   }
 
   /**
@@ -44,7 +43,7 @@ public class WeatherReadingTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void testIfInvalidRelativeHumidity() {
-    reading(37.4, 10, 5.4, 41.2);
+    reading(37.4, 10, 5.4, 41);
   }
 
   /**
@@ -53,7 +52,7 @@ public class WeatherReadingTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void testIfInvalidWindSpeed() {
-    reading(37.4, 20.1, -2.1, 41.2);
+    reading(37.4, 20.1, -2.1, 41);
   }
 
   /**
@@ -62,7 +61,7 @@ public class WeatherReadingTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void testIfInvalidTotalRain() {
-    weatherReading = reading(37.4, 20.1, 5.7, -1.2);
+    reading(37.4, 20.1, 5.7, -1);
   }
 
   /**
@@ -163,12 +162,13 @@ public class WeatherReadingTest {
 
   @Test
   public void testEquals() {
-    WeatherReading anotherWeatherReading = reading(37.3, 20.4, 5.8, 41.1);
+    WeatherReading equalWeatherReading = reading(37.3, 20.4, 5.8, 41);
+    assertEquals(weatherReading, weatherReading);
+    assertEquals(weatherReading, equalWeatherReading);
+    assertEquals(equalWeatherReading, weatherReading);
 
-    assertTrue(weatherReading.equals(weatherReading));
-    assertTrue(weatherReading.equals(anotherWeatherReading));
-    assertTrue(anotherWeatherReading.equals(weatherReading));
-    assertFalse(weatherReading.equals(reading(34.2, 22.1, 6.4, 32.1)));
+    WeatherReading unequalWeatherReading = reading(34.2, 22.1, 6.4, 32);
+    assertNotEquals(weatherReading, unequalWeatherReading);
   }
 
   /**
@@ -177,8 +177,10 @@ public class WeatherReadingTest {
 
   @Test
   public void testToString() {
-    WeatherReading anotherWeatherReading = reading(37.3, 20.4, 5.8, 41.1);
-    assertEquals(anotherWeatherReading.toString(), weatherReading.toString());
+    WeatherReading equalWeatherReading = reading(37.3, 20.4, 5.8, 41);
+    WeatherReading unequalWeatherReading = reading(34.2, 22.1, 6.4, 32);
+    assertEquals(equalWeatherReading.toString(), weatherReading.toString());
+    assertNotEquals(weatherReading.toString(), unequalWeatherReading.toString());
   }
 
   /**
@@ -187,7 +189,10 @@ public class WeatherReadingTest {
 
   @Test
   public void testHashCode() {
-    WeatherReading anotherWeatherReading = reading(37.3, 20.4, 5.8, 41.1);
-    assertEquals(weatherReading.hashCode(), anotherWeatherReading.hashCode());
+    WeatherReading equalWeatherReading = reading(37.3, 20.4, 5.8, 41);
+    assertEquals(weatherReading.hashCode(), equalWeatherReading.hashCode());
+
+    WeatherReading unequalWeatherReading = reading(34.2, 22.1, 6.4, 32);
+    assertNotEquals(weatherReading.hashCode(), unequalWeatherReading.hashCode());
   }
 }
